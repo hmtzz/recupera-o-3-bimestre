@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+body {
+font-family: 'Poppins', sans-serif;
+background: linear-gradient(135deg, #667eea, #764ba2);
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
+margin: 0;
+}
+
+
+.container {
+background: #fff;
+padding: 25px 30px;
+border-radius: 15px;
+width: 380px;
+box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+
+h1 {
+text-align: center;
+margin-bottom: 20px;
+color: #444;
+}
+
+
+.input-area {
+display: flex;
+gap: 10px;
+margin-bottom: 20px;
+}
+
+
+input {
+flex: 1;
+padding: 10px;
+font-size: 15px;
+border-radius: 8px;
+border: 1px solid #ccc;
+outline: none;
+}
+
+
+input:focus {
+border-color: #667eea;
+}
+
+
+button {
+padding: 10px 14px;
+cursor: pointer;
+border: none;
+border-radius: 8px;
+font-size: 14px;
+transition: 0.3s;
+}
+
+
+#btnAdicionar {
+background: #667eea;
+color: #fff;
+}
+
+
+#btnAdicionar:hover {
+background: #5563d4;
+}
+
+
+ul {
+list-style: none;
+padding: 0;
+margin: 0;
+}
+
+li {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px;
+border-bottom: 1px solid #eee;
+border-radius: 6px;
+margin-bottom: 6px;
+background: #f9f9f9;
+}
+
+
+li span {
+cursor: pointer;
+flex: 1;
+}
+
+
+li.comprado span {
+text-decoration: line-through;
+color: gray;
+}
+
+
+.acoes {
+display: flex;
+gap: 6px;
+}
+
+
+.btn-editar {
+background: #ffc107;
+color: #000;
+}
+
+
+.btn-editar:hover {
+background: #e0a800;
+}
+
+
+.btn-remover {
+background: #e53935;
+color: #fff;
+}
+
+
+.btn-remover:hover {
+background: #c62828;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🛒 Lista de Compras</h1>
+
+
+<div class="input-area">
+<input type="text" id="itemInput" placeholder="Digite um item">
+<button id="btnAdicionar">Adicionar</button>
+</div>
+
+
+<ul id="lista"></ul>
+</div>
+
+
+<script>
+const input = document.querySelector('#itemInput');
+const botao = document.querySelector('#btnAdicionar');
+const lista = document.querySelector('#lista');
+let itens = JSON.parse(localStorage.getItem('listaDeCompras')) || [];
+
+
+function salvarNoLocalStorage() {
+localStorage.setItem('listaDeCompras', JSON.stringify(itens));
+}
+
+
+function renderizarLista() {
+lista.innerHTML = '';
+
+
+itens.forEach((item, index) => {
+const li = document.createElement('li');
+if (item.comprado) li.classList.add('comprado');
+
+
+const span = document.createElement('span');
+span.textContent = item.nome;
+
+
+span.addEventListener('click', () => {
+itens[index].comprado = !itens[index].comprado;
+salvarNoLocalStorage();
+renderizarLista();
+});
+const divAcoes = document.createElement('div');
+divAcoes.classList.add('acoes');
+
+
+const btnEditar = document.createElement('button');
+btnEditar.textContent = '✏️';
+btnEditar.classList.add('btn-editar');
+
+
+btnEditar.addEventListener('click', () => {
+const novoNome = prompt('Editar item:', item.nome);
+
+
+if (novoNome !== null && novoNome.trim() !== '') {
+itens[index].nome = novoNome.trim();
+salvarNoLocalStorage();
+renderizarLista();
+}
+});
+
+
+const btnRemover = document.createElement('button');
+btnRemover.textContent = '🗑️';
+btnRemover.classList.add('btn-remover');
+
+
+btnRemover.addEventListener('click', () => {
+itens.splice(index, 1);
+salvarNoLocalStorage();
+renderizarLista();
+});
+
+divAcoes.appendChild(btnEditar);
+divAcoes.appendChild(btnRemover);
+
+
+li.appendChild(span);
+li.appendChild(divAcoes);
+lista.appendChild(li);
+});
+}
+
+
+botao.addEventListener('click', () => {
+const texto = input.value.trim();
+
+
+if (texto === '') return;
+
+
+itens.push({
+nome: texto,
+comprado: false
+});
+
+
+salvarNoLocalStorage();
+renderizarLista();
+input.value = '';
+});
+
+
+input.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') {
+botao.click();
+}
+});
+renderizarLista();
+</script>
+</body>
+</html>
